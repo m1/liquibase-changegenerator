@@ -4,7 +4,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 const val EXTENSION_NAME = "liquibaseChangeGenerator"
-const val TASK_NAME = "templateExample"
 
 abstract class ChangeGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
