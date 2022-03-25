@@ -6,11 +6,14 @@ pluginPublish = "0.20.0"
 versionCheck = "0.42.0"
 
 [plugins]
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt"}
-kotlin = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin"}
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle"}
-pluginPublish = { id = "com.gradle.plugin-publish", version.ref = "pluginPublish"}
-versionCheck = { id = "com.github.ben-manes.versions", version.ref = "versionCheck"}
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kotlin = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+pluginPublish = { id = "com.gradle.plugin-publish", version.ref = "pluginPublish" }
+versionCheck = { id = "com.github.ben-manes.versions", version.ref = "versionCheck" }
 
 [libraries]
 junit = "junit:junit:4.13.2"
+semver = "net.swiftzer.semver:semver:1.2.0"
+jacksonyaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2"
+jacksonkt = "com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2"

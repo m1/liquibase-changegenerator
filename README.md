@@ -12,7 +12,7 @@ Just click on [![Use this template](https://img.shields.io/badge/-Use%20this%20t
 
 Once created don't forget to update the:
 - [Plugin Coordinates](plugin-build/buildSrc/src/main/java/Coordinates.kt)
-- Plugin Usages (search for [com.m1c.liquibase.changegenerator](https://github.com/m1/liquibase-changegenerator/search?q=com.m1c.liquibase.changegenerator&unscoped_q=com.m1c.liquibase.changegenerator) in the repo and replace it with your ID).
+- Plugin Usages (search for [io.github.m1.liquibase.changegenerator](https://github.com/m1/liquibase-changegenerator/search?q=io.github.m1.liquibase.changegenerator&unscoped_q=io.github.m1.liquibase.changegenerator) in the repo and replace it with your ID).
 
 ## Features 🎨
 

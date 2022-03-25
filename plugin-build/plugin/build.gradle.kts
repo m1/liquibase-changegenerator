@@ -4,16 +4,38 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk7"))
-    implementation(gradleApi())
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        mavenLocal()
+    }
+    dependencies {
+        classpath("net.swiftzer.semver:semver:1.2.0")
+    }
+}
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(gradleApi())
     testImplementation(libs.junit)
+    implementation(libs.jacksonyaml)
+    implementation(libs.jacksonkt)
+    implementation(libs.semver)
+    implementation("net.swiftzer.semver:semver:1.2.0")
+    implementation("com.vdurmont:semver4j:3.1.0")
+    compileOnly("net.swiftzer.semver:semver:1.2.0")
+    testImplementation("net.swiftzer.semver:semver:1.2.0")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 gradlePlugin {

@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
     }
 }
-
+enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = ("com.m1c.liquibase.changegenerator")
+rootProject.name = ("io.github.m1.liquibase.changegenerator")
 
 include(":plugin")

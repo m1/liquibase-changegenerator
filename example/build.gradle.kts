@@ -1,8 +1,9 @@
 plugins {
     java
-    id("com.m1c.liquibase.changegenerator.plugin")
+    id("io.github.m1.liquibase-change-generator")
 }
 
-templateExampleConfig {
-    message.set("Just trying this gradle plugin...")
+liquibaseChangeGenerator {
+    // println("testing")
+    // message.set("Just trying this gradle plugin...")
 }

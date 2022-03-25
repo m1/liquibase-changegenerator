@@ -5,6 +5,17 @@ pluginManagement {
     }
 }
 
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath("net.swiftzer.semver:semver:1.2.0")
+    }
+}
+
+
+
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
