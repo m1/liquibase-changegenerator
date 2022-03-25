@@ -31,9 +31,9 @@ jobs:
 #        run: ./gradlew  --message="Test Run" --tag=CI
 #        if: success()
         # And we verify that the output of the file is correct.
-      - name: Verify the plugin output
-        run: grep -Fxq "[CI] Test Run" ./example/build/template-example.txt
-        if: success()
+#      - name: Verify the plugin output
+#        run: grep -Fxq "[CI] Test Run" ./example/build/template-example.txt
+#        if: success()
 
       - name: Stop Gradle
         run: ./gradlew --stop
