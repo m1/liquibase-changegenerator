@@ -29,7 +29,7 @@ liquibaseChangeGenerator {
 }
 ```
 
-New gradle tasks:
+## Tasks
 
 ### `gradle newChangeLog`
 
