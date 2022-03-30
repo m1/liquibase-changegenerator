@@ -1,7 +1,7 @@
 object PluginCoordinates {
     const val ID = "io.github.m1.liquibase-change-generator"
     const val GROUP = "io.github.m1.liquibase.changegenerator"
-    const val VERSION = "0.0.1"
+    const val VERSION = "0.0.2"
     const val IMPLEMENTATION_CLASS = "io.github.m1.liquibase.changegenerator.plugin.ChangeGeneratorPlugin"
 }
 
