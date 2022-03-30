@@ -8,7 +8,7 @@ object PluginCoordinates {
 object PluginBundle {
     const val VCS = "https://github.com/m1/liquibase-changegenerator"
     const val WEBSITE = "https://github.com/m1/liquibase-changegenerator"
-    const val DESCRIPTION = "A Graadle plugin for generating liquibase migrations"
+    const val DESCRIPTION = "A Gradle plugin for generating liquibase migrations"
     const val DISPLAY_NAME = "Liquibase Gradle Change Generator Plugin"
     val TAGS = listOf(
         "liquibase",

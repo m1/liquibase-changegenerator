@@ -11,23 +11,39 @@ import java.io.File
  * Represents a newChangeSet task
  *
  * @property changeSetName Input to change the default changeset name.
- * @property logger The class logger
+ * @property withTestdata Input to generate this changeset with testdata
  */
 abstract class NewChangeSetTask : LiquibaseChangeTask() {
     init {
+        /**
+         * The gradle plugin task group
+         */
         group = EXTENSION_NAME
+
+        /**
+         * The description for this gradle task
+         */
         description = "Generates a liquibase changeset"
     }
 
     companion object {
+        /**
+         * The name of this gradle task
+         */
         const val TASK_NAME: String = "newChangeSet"
     }
 
+    /**
+     * Optional input for the name of the changeset to generate
+     */
     @Optional
     @set:Option(option = "changeSetName", description = "The name of this changeset")
     @get:Input
     var changeSetName: String? = "changeset_example"
 
+    /**
+     * Optional input to generate this changeset with testdata
+     */
     @Optional
     @set:Option(option = "withTestdata", description = "Generates a testdata migration")
     @get:Input

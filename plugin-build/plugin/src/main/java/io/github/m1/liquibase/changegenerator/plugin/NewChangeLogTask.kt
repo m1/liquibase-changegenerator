@@ -20,29 +20,51 @@ import java.io.File
 @Suppress("MaxLineLength")
 abstract class NewChangeLogTask : LiquibaseChangeTask() {
     init {
+        /**
+         * The name of this gradle task group
+         */
         group = EXTENSION_NAME
+
+        /**
+         * The description for this gradle task
+         */
         description = "Generates a liquibase changelog"
     }
 
     companion object {
+        /**
+         * The name of this gradle task
+         */
         const val TASK_NAME: String = "newChangeLog"
     }
 
+    /**
+     * Input to release a specific version
+     */
     @Optional
     @set:Option(option = "releaseVersion", description = "The new version to release")
     @get:Input
     var releaseVersion: String? = null
 
+    /**
+     * Input to release a new major version
+     */
     @Optional
     @set:Option(option = "releaseMajor", description = "Bumps the major version")
     @get:Input
     var releaseMajor: Boolean? = null
 
+    /**
+     * Input to release a new minor version
+     */
     @Optional
     @set:Option(option = "releaseMinor", description = "Bumps the minor version")
     @get:Input
     var releaseMinor: Boolean? = null
 
+    /**
+     * Input to release a new patch version
+     */
     @Optional
     @set:Option(option = "releasePatch", description = "Bumps the patch version")
     @get:Input
