@@ -3,7 +3,12 @@ plugins {
     id("io.github.m1.liquibase-change-generator")
 }
 
+val liquibaseRootPath = "./db"
+val liquibaseMigrationsFolder = "migrations"
+val liquibaseChangelog = "changelog.yml"
+val liquibaseChangeLogFilePath = "$liquibaseRootPath/changelog.yml"
+
 liquibaseChangeGenerator {
-    // println("testing")
-    // message.set("Just trying this gradle plugin...")
+    group = "liquibase"
+    description = "Generates a new changeset"
 }

@@ -7,37 +7,33 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import net.swiftzer.semver.SemVer
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import java.io.File
 
 @Suppress("MaxLineLength")
 abstract class LiquibaseChangeTask : DefaultTask() {
     companion object {
         const val PAD_LENGTH: Int = 3
-        const val CHANGELOG_VERSION_POSITION: Int = 3
+        const val CHANGELOG_VERSION_POSITION: Int = 2
     }
 
-    @Input
-    var changeLogFile: String = ""
+    @get:Internal
+    protected val pathExtension: ChangeGeneratorPluginExtension = project.changeGeneratorPluginExtension
+
+    @get:Input
+    val changeLogFilePath: String = pathExtension.changeLogFilePath
+
+    @get:Input
+    var migrationsFolder: String = pathExtension.migrationsFolder
+
+    @get:Input
+    var rootPath: String = pathExtension.rootPath
 
     @Input
-    var migrationsFolder: String = ""
-
-    @Input
-    var yamlMapper: ObjectMapper = ObjectMapper(
-        YAMLFactory().configure(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR, true)
-    ).registerModule(KotlinModule.Builder().build())
-
-    // @get:Input
-    // @get:Option(option = "message", description = "A message to be printed in the output file")
-    // abstract val message: Property<String>
-    //
-    // @get:Input
-    // @get:Option(option = "tag", description = "A Tag to be used for debug and in the output file")
-    // @get:Optional
-    // abstract val tag: Property<String>
-    //
-    // @get:OutputFile
-    // abstract val outputFile: RegularFileProperty
+    var yamlMapper: ObjectMapper =
+        ObjectMapper(YAMLFactory().configure(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR, true)).registerModule(
+            KotlinModule.Builder().build()
+        )
 
     /**
      * Creates a new changeset item with sensible defaults
@@ -86,9 +82,7 @@ abstract class LiquibaseChangeTask : DefaultTask() {
                 ChangeSetChanges(sqlFile = ChangeSetChangesSQLFilePath(path = "$migrationsFolder/$changeLogVersion/testdata/$changeLogVersion-${paddedChangeSetVersion}__$migrationName.sql")),
                 ChangeSetChanges(tagDatabase = ChangeSetChangesTagDatabase(tag = changeLogVersion.toString())),
             )
-            changeSet.rollback = listOf(
-                ChangeSetChanges(sqlFile = ChangeSetChangesSQLFilePath(path = "$migrationsFolder/$changeLogVersion/testdata/rollbacks/$changeLogVersion-${paddedChangeSetVersion}__$migrationName.sql")),
-            )
+            changeSet.rollback = listOf()
         }
 
         return changeSet
@@ -101,7 +95,7 @@ abstract class LiquibaseChangeTask : DefaultTask() {
      *
      * @return The zero padded version
      */
-    private fun padVersion(version: Int): String {
+    fun padVersion(version: Int): String {
         return version.toString().padStart(PAD_LENGTH, '0')
     }
 
@@ -116,60 +110,60 @@ abstract class LiquibaseChangeTask : DefaultTask() {
         val latestFile = changeLog.databaseChangeLog.last().include.file
         val strs = latestFile.split("/").toTypedArray()
 
-        return SemVer.parse(strs[CHANGELOG_VERSION_POSITION])
+        return SemVer.parse(strs[CHANGELOG_VERSION_POSITION].split("-")[0])
+    }
+
+    /**
+     * Returns the generated migration folder path.
+     *
+     * @return The generated migrations folder path
+     */
+    fun generateMigrationsFolderPath(): String {
+        return "$rootPath/$migrationsFolder"
     }
 
     /**
      * Writes a migration file
      *
      * @param version The version of the changelog
-     * @param changeSetVersion The version of the changeset
-     * @param changeSetName The name of the changeset
+     * @param changeVersion The version of the changeset
+     * @param changeName The name of the changeset
      */
-    fun writeMigration(version: SemVer, changeSetVersion: Int = 1, changeSetName: String = "changeset_example") {
+    fun writeMigration(version: SemVer, changeVersion: Int = 1, changeName: String = "changeset_example") {
         val migration =
-            File("$migrationsFolder/$version/$version-${this.padVersion(changeSetVersion)}__$changeSetName.sql")
+            File("${this.generateMigrationsFolderPath()}/$version/$version-${this.padVersion(changeVersion)}__$changeName.sql")
+        migration.parentFile.mkdirs()
         migration.writeText("-- This is an auto-generated example migration, please remove this.\nCREATE TABLE example_table \n(\n\thello_world VARCHAR(100)\n);")
-        logger.info("migration: $migration created")
+        logger.lifecycle("Migration: $migration created")
     }
 
     /**
      * Writes a testdata migration file
      *
      * @param version The version of the changelog
-     * @param changeSetVersion The version of the changeset
-     * @param changeSetName The name of the changeset
+     * @param changeVersion The version of the changeset
+     * @param changeName The name of the changeset
      */
-    fun writeTestdataMigration(
-        version: SemVer,
-        changeSetVersion: Int = 1,
-        changeSetName: String = "changeset_example",
-    ) {
+    fun writeTestdataMigration(version: SemVer, changeVersion: Int = 1, changeName: String = "changeset_example") {
         val migration =
-            File("$migrationsFolder/$version/testdata/$version-${this.padVersion(changeSetVersion)}__$changeSetName.sql")
+            File("${this.generateMigrationsFolderPath()}/$version/testdata/$version-${this.padVersion(changeVersion)}__$changeName.sql")
         migration.parentFile.mkdirs()
         migration.writeText("-- This is an auto-generated example testdata insert, please remove this.\nINSERT INTO example_table (hello_world) \nVALUES ('hello_world');")
-        logger.info("testdata migration: $migration created")
-
-        val rollbackExample =
-            File("$migrationsFolder/$version/testdata/rollbacks/$version-${this.padVersion(changeSetVersion)}__$changeSetName.sql")
-        rollbackExample.parentFile.mkdirs()
-        rollbackExample.writeText("-- This is an auto-generated example rollback, please remove this.\nTRUNCATE TABLE example_table;")
-        logger.info("testdata rollback: $rollbackExample created")
+        logger.lifecycle("Testdata migration: $migration created")
     }
 
     /**
      * Writes a rollback file
      *
      * @param version The version of the changelog
-     * @param changeSetVersion The version of the changeset
-     * @param changeSetName The name of the changeset
+     * @param changeVersion The version of the changeset
+     * @param changeName The name of the changeset
      */
-    fun writeRollback(version: SemVer, changeSetVersion: Int = 1, changeSetName: String = "changeset_example") {
+    fun writeRollback(version: SemVer, changeVersion: Int = 1, changeName: String = "changeset_example") {
         val rollbackExample =
-            File("$migrationsFolder/$version/rollbacks/$version-${this.padVersion(changeSetVersion)}__$changeSetName.sql")
+            File("${this.generateMigrationsFolderPath()}/$version/rollbacks/$version-${this.padVersion(changeVersion)}__$changeName.sql")
         rollbackExample.parentFile.mkdirs()
         rollbackExample.writeText("-- This is an auto-generated example rollback, please remove this.\nDROP TABLE example_table;")
-        logger.info("rollback: $rollbackExample created")
+        logger.lifecycle("Rollback: $rollbackExample created")
     }
 }

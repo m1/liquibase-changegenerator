@@ -20,8 +20,8 @@ import java.io.File
 @Suppress("MaxLineLength")
 abstract class NewChangeLogTask : LiquibaseChangeTask() {
     init {
-        description = "Just a sample template task"
         group = EXTENSION_NAME
+        description = "Generates a liquibase changelog"
     }
 
     companion object {
@@ -53,11 +53,8 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
      */
     @TaskAction
     fun action() {
-        println(releaseVersion)
-        return
-        // val changeLogVersion = this.generateChangelogVersion()
-        //
-        // this.generateTemplates(changeLogVersion)
+        val changeLogVersion = this.generateChangelogVersion()
+        this.generateTemplates(changeLogVersion)
     }
 
     /**
@@ -74,12 +71,13 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
             releaseVersionSemver = SemVer.parse(releaseVersion!!)
         }
 
-        val file = File(changeLogFile)
-        if (file.exists()) {
-            return this.generateChangeLogVersionExists(file, releaseVersionSemver)
-        }
+        val file = File(changeLogFilePath)
 
-        return this.generateChangeLogVersionNoExists(file, releaseVersionSemver)
+        return if (file.exists()) {
+            this.generateChangeLogVersionExists(file, releaseVersionSemver)
+        } else {
+            this.generateChangeLogVersionNoExists(file, releaseVersionSemver)
+        }
     }
 
     /**
@@ -101,12 +99,12 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
             releaseMinor == null &&
             releasePatch == null
         if (releaseIsNull) {
-            logger.warn("no input variables set for release, pinning as patch release")
+            logger.lifecycle("No input variables set for release, pinning as patch release")
             releasePatch = true
         }
 
         val newVersion = if (version != null && version <= latestVersion) {
-            throw IllegalArgumentException("releaseVersion must be greater than the version in the master changelog.yml")
+            throw IllegalArgumentException("ReleaseVersion must be greater than the version in the master changelog.yml")
         } else if (version == null && (releaseMajor != null && releaseMajor!!)) {
             SemVer(major = latestVersion.major + 1, minor = 0, patch = 0)
         } else if (version == null && (releaseMinor != null && releaseMinor!!)) {
@@ -115,13 +113,13 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
             SemVer(major = latestVersion.major, minor = latestVersion.minor, patch = latestVersion.patch + 1)
         }
 
-        logger.info("old version: $latestVersion, new version: $newVersion")
+        logger.lifecycle("Old version: $latestVersion, new version: $newVersion")
         val newChangeLogStr = "$migrationsFolder/$newVersion/$newVersion-changelog.yml"
 
         changeLog.databaseChangeLog.add(ChangeLogItem(IncludeItem(file = newChangeLogStr)))
 
         this.yamlMapper.writeValue(file, changeLog)
-        logger.info("Wrote master changelog file: file")
+        logger.lifecycle("Wrote master changelog file: $file")
 
         return newVersion
     }
@@ -142,7 +140,8 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
         if (newVersion == null) {
             newVersion = SemVer(major = 0, minor = 0, patch = 1)
         }
-        logger.warn("No changelog found, creating new version: $newVersion")
+
+        logger.lifecycle("No changelog found, creating new version: $newVersion")
         val newChangeLog = "$migrationsFolder/$newVersion/$newVersion-changelog.yml"
         val changeLog = ChangeLogMaster(
             databaseChangeLog = arrayListOf(
@@ -150,7 +149,7 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
             )
         )
         this.yamlMapper.writeValue(file, changeLog)
-        logger.info("Wrote master changelog file: file")
+        logger.lifecycle("Wrote master changelog file: $file")
 
         return newVersion
     }
@@ -162,8 +161,8 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
      */
     @Suppress("UnusedPrivateMember")
     private fun generateTemplates(changeLogVersion: SemVer) {
-        val migrationFolderVersion = File("$migrationsFolder/$changeLogVersion")
-        logger.info("New migration folder: $migrationFolderVersion")
+        val migrationFolderVersion = File("${this.generateMigrationsFolderPath()}/$changeLogVersion")
+        logger.lifecycle("New migration folder: $migrationFolderVersion")
 
         if (migrationFolderVersion.exists()) {
             throw GradleException("new migration folder: $migrationFolderVersion already exists")
@@ -176,15 +175,15 @@ abstract class NewChangeLogTask : LiquibaseChangeTask() {
         this.writeRollback(changeLogVersion)
         this.writeTestdataMigration(changeLogVersion)
 
-        val changeSetMigration = defaultChangeSetItem(changeLogVersion, 1, "changeset_example")
-        val changeSetTestdata = defaultChangeSetItem(changeLogVersion, 1, "changeset_example", testData = true)
-        val changeSetFile = File("$migrationsFolder/$changeLogVersion/$changeLogVersion-changelog.yml")
-
         val changeLogVersioned = ChangeLogMigration(
             databaseChangeLog = mutableListOf(
-                ChangeSet(changeSet = changeSetMigration),
-                ChangeSet(changeSet = changeSetTestdata)
+                ChangeSet(changeSet = defaultChangeSetItem(changeLogVersion, 1, "changeset_example")),
+                ChangeSet(changeSet = defaultChangeSetItem(changeLogVersion, 1, "changeset_example", testData = true))
             )
+        )
+
+        val changeSetFile = File(
+            "${this.generateMigrationsFolderPath()}/$changeLogVersion/$changeLogVersion-changelog.yml"
         )
         this.yamlMapper.writeValue(changeSetFile, changeLogVersioned)
     }
