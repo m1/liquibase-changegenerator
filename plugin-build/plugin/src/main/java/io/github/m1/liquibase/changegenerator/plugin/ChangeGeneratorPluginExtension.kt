@@ -14,7 +14,18 @@ import javax.inject.Inject
 abstract class ChangeGeneratorPluginExtension @Inject constructor(project: Project) {
     private val objects = project.objects
 
+    /**
+     * The root path for the migrations and master changelog
+     */
     var rootPath: String = "./db"
+
+    /**
+     * The path for the liquibase master changelog
+     */
     var changeLogFilePath: String = "./db/changelog.yml"
+
+    /**
+     * The name of the migrations folder
+     */
     var migrationsFolder: String = "migrations"
 }
